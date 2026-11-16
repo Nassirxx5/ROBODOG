@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robodog: Control Console</title>
+<style>
+  :root {
+    --bg:#0a0a0d; --panel:#131219; --line:#2a2733; --text:#f1eef5; --muted:#9a95a6;
+    --red:#c8224f; --red-d:#a81c47; --purple:#5b2a8c; --purple-l:#c9a7e8; --ok:#4cc38a; --warn:#f59e0b;
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body {
+    margin:0; min-height:100vh; color:var(--text); padding:20px 16px 28px;
+    font-family:"Noto Sans","Segoe UI",system-ui,sans-serif;
+    background:
+      radial-gradient(ellipse at 8% 0%, rgba(91,42,140,.38), transparent 55%),
+      radial-gradient(ellipse at 95% 100%, rgba(200,34,79,.18), transparent 50%), var(--bg);
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+    touch-action:manipulation; overscroll-behavior:contain; overflow-x:hidden;
+  }
+  main { width:min(520px,100%); margin:0 auto; }
+  h1,h2,.sec,.big,.loader-title,.welcome-btn { font-family:"Poppins","Montserrat","Segoe UI Black","Segoe UI",sans-serif; text-transform:uppercase; }
+  .top { display:flex; justify-content:space-between; font-size:.7rem; letter-spacing:.2em; color:var(--muted); margin-bottom:22px; }
+  .top b { color:var(--red); }
+  h1 { font-size:clamp(2.6rem,12vw,4rem); font-weight:900; color:var(--red); margin:0; line-height:1; }
+  .spaced { letter-spacing:.35em; font-size:.75rem; color:var(--muted); margin:10px 0 16px; text-transform:uppercase; }
+  .pill { display:inline-block; background:var(--purple); border-radius:8px; padding:8px 16px;
+          font-weight:700; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  .sec { display:flex; align-items:center; gap:14px; color:var(--red); font-size:1rem; font-weight:800; margin:24px 0 12px; }
+  .sec::after { content:""; flex:1; height:2px; background:var(--red-d); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  ul.dia { list-style:none; margin:0; padding:0; font-size:.92rem; line-height:1.9; }
+  ul.dia li::before { content:"◆"; color:var(--red); margin-right:10px; font-size:.7rem; }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  th { background:var(--red-d); text-align:left; padding:8px 12px; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; }
+  td { padding:7px 12px; border-bottom:1px solid var(--line); background:var(--panel); }
+  td:first-child { white-space:nowrap; }
+  kbd { display:inline-block; min-width:22px; text-align:center; padding:1px 7px; border:1px solid #4a4558; border-bottom-width:2px;
+        border-radius:6px; background:#1d1b25; font:700 .75rem "Segoe UI",sans-serif; color:var(--text); }
+  .cta { width:100%; margin-top:26px; background:var(--purple); border:2px solid #7a45b8; border-radius:12px; color:#fff;
+         padding:16px; font:800 1.05rem "Poppins","Segoe UI",sans-serif; text-transform:uppercase; cursor:pointer; letter-spacing:.05em;
+         transition:transform .16s ease, filter .16s ease, box-shadow .16s ease; }
+  .cta:hover { filter:brightness(1.12); transform:translateY(-2px); box-shadow:0 10px 26px rgba(91,42,140,.45); }
+  .cta:active { transform:scale(.98); }
+  .cta small { display:block; color:var(--purple-l); font-weight:600; font-size:.72rem; letter-spacing:.25em; margin-bottom:4px; }
+
+  .tc, .only-touch { display:none !important; }
+  body.touch .tc { display:block !important; } body.touch .only-touch { display:block !important; }
+  body.touch .sec.only-touch { display:flex !important; }
+  body.touch kbd, body.touch .kb, body.touch .only-kb { display:none !important; }
+  body.touch .pb { padding:13px 4px; font-size:.85rem; }
+  .lan { margin:14px 0 0; text-align:center; font-size:.78rem; color:var(--muted); }
+  .lan b { color:var(--purple-l); }
+  .nomouse { margin:14px 0 0; text-align:center; font-size:.72rem; letter-spacing:.2em; color:var(--purple-l); text-transform:uppercase; }
+  footer { margin-top:28px; border-top:1px solid var(--line); padding-top:10px; display:flex; justify-content:space-between;
+           font-size:.68rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; }
+
+  /* ---- page transitions ---- */
+  .page {
+    opacity:1;
+    transform:translateY(0) scale(1);
+    transition:opacity .38s ease, transform .38s ease;
+  }
+  .page.page-enter {
+    opacity:0;
+    transform:translateY(18px) scale(.98);
+  }
+  .page.page-exit {
+    opacity:0;
+    transform:translateY(-14px) scale(.98);
+    pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+
+  /* ---- load screen ---- */
+  #loader {
+    min-height:calc(100vh - 48px); display:flex; flex-direction:column;
+    justify-content:center; align-items:center; text-align:center;
+  }
+  .loader-tag { font-size:.7rem; letter-spacing:.28em; color:var(--muted); text-transform:uppercase; margin-bottom:14px; }
+  .loader-tag b { color:var(--red); }
+  .loader-title {
+    font-size:clamp(3.2rem,14vw,5.2rem); font-weight:900; color:var(--red); margin:0; line-height:1;
+    letter-spacing:.08em; text-shadow:0 0 32px rgba(200,34,79,.45);
+    animation:pulseLogo 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes pulseLogo {
+    from { transform:scale(.99); text-shadow:0 0 22px rgba(200,34,79,.35); }
+    to { transform:scale(1.02); text-shadow:0 0 40px rgba(200,34,79,.65); }
+  }
+  .loader-sub { font-size:.74rem; letter-spacing:.32em; color:var(--purple-l); text-transform:uppercase; margin:14px 0 24px; }
+  .loader-bar { width:min(280px,75vw); height:6px; border-radius:99px; background:#1d1b25; border:1px solid var(--line); overflow:hidden; }
+  .loader-bar i {
+    display:block; height:100%; width:100%;
+    background:linear-gradient(90deg, var(--purple), var(--red));
+    animation:loadFill 1.1s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes loadFill {
+    0% { width:0%; }
+    65% { width:82%; }
+    100% { width:100%; }
+  }
+  .welcome-btn {
+    margin-top:28px;
+    padding:15px 44px;
+    border-radius:12px;
+    border:2px solid #965cd6;
+    background:linear-gradient(135deg, var(--purple), #7b32bd);
+    color:#fff;
+    font-size:1.12rem;
+    font-weight:900;
+    letter-spacing:.16em;
+    cursor:pointer;
+    box-shadow:0 8px 28px rgba(91,42,140,.55), 0 0 18px rgba(200,34,79,.22);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .welcome-btn small {
+    display:block;
+    font-size:.66rem;
+    font-weight:600;
+    letter-spacing:.24em;
+    color:var(--purple-l);
+    margin-bottom:3px;
+  }
+  .welcome-btn:hover {
+    transform:translateY(-3px) scale(1.03);
+    filter:brightness(1.12);
+    box-shadow:0 12px 34px rgba(200,34,79,.4), 0 0 26px rgba(123,50,189,.75);
+  }
+  .welcome-btn:active { transform:scale(.96); }
+
+  /* ---- console & authority card ---- */
+  .head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  h2 { margin:0; font-size:1.6rem; font-weight:900; color:var(--red); }
+  .status { display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--muted); }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--red); }
+  .dot.on { background:var(--ok); }
+  .telem { font-size:.8rem; color:var(--muted); margin-bottom:12px; font-variant-numeric:tabular-nums; }
+
+  .auth-card {
+    background:var(--panel); border:1.5px solid var(--line); border-radius:12px;
+    padding:11px 14px; margin-bottom:12px;
+  }
+  .auth-top { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+  .auth-info { display:flex; align-items:center; gap:8px; font-size:.75rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
+  .auth-dot { width:9px; height:9px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+  .auth-dot.pilot { background:var(--ok); box-shadow:0 0 8px rgba(76,195,138,.6); }
+  .auth-dot.locked { background:var(--warn); box-shadow:0 0 8px rgba(245,158,11,.5); }
+  .admin-tag {
+    font-size:.64rem; font-weight:800; letter-spacing:.12em; padding:2px 7px;
+    border-radius:5px; background:rgba(91,42,140,.55); border:1px solid #8b5cf6; color:#e9d5ff;
+  }
+  .auth-btns { display:flex; align-items:center; gap:6px; }
+  .auth-btn {
+    background:#1d1b25; border:1.5px solid #4a4558; border-radius:8px; color:var(--text);
+    padding:6px 10px; font:700 .72rem "Segoe UI",sans-serif; letter-spacing:.05em; text-transform:uppercase;
+    cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;
+    transition:background .15s, border-color .15s;
+  }
+  .auth-btn:hover { border-color:var(--purple-l); background:var(--purple); }
+  .auth-btn.primary { background:var(--purple); border-color:#7a45b8; }
+  .auth-btn.release { border-color:var(--ok); color:#bbf7d0; }
+  .auth-btn.release:hover { background:#14532d; }
+  .auth-btn.danger { border-color:var(--red); color:#fecdd3; }
+  .auth-btn.danger:hover { background:var(--red); color:#fff; }
+
+  .req-banner {
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    margin-top:10px; padding:8px 10px; border-radius:8px;
+    background:rgba(91,42,140,.28); border:1px solid #7a45b8; font-size:.76rem; font-weight:700;
+  }
+  .pin-row {
+    display:flex; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+  }
+  .pin-input {
+    flex:1; min-width:0; background:#0d0c12; border:1.5px solid #4a4558; border-radius:8px;
+    color:var(--text); padding:7px 10px; font:700 .86rem "Segoe UI",monospace; letter-spacing:.18em;
+    user-select:text; -webkit-user-select:text;
+  }
+  .pin-input:focus { outline:none; border-color:var(--purple-l); }
+  .auth-msg { font-size:.74rem; color:#fda4af; margin-top:6px; }
+
+  body.spectator .power,
+  body.spectator .pad,
+  body.spectator [data-posture="STAND"],
+  body.spectator [data-posture="SIT"],
+  body.spectator [data-screen] { opacity:.42; }
+  body.spectator:not(.is-admin) .pb.stop { opacity:.42; }
+  body.spectator.is-admin .pb.stop { opacity:1; }
+
+  .power { width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; cursor:pointer;
+           background:var(--panel); border:2px solid var(--red); border-radius:12px; color:var(--text); padding:14px 16px;
+           font:800 1.05rem "Poppins","Segoe UI",sans-serif; text-transform:uppercase;
+           transition:background .2s ease, border-color .2s ease, transform .14s ease, opacity .2s ease; }
+  body:not(.off) .power { background:var(--purple); border-color:#7a45b8; }
+  .pstate { font-size:.72rem; letter-spacing:.2em; color:var(--purple-l); margin:8px 2px 14px; text-transform:uppercase; font-weight:700; }
+  body.off .pstate { color:var(--red); }
+  .row { display:grid; gap:8px; }
+  .row.c3 { grid-template-columns:repeat(3,1fr); } .row.c2 { grid-template-columns:repeat(2,1fr); }
+  .pb { display:flex; flex-direction:column; align-items:center; gap:5px; background:var(--panel); border:1.5px solid var(--line);
+        border-radius:10px; color:var(--text); font:700 .8rem "Segoe UI",sans-serif; padding:9px 6px; cursor:pointer;
+        transition:background .16s ease, border-color .16s ease, transform .14s ease, opacity .2s ease; }
+  .pb:hover { border-color:#4a4558; }
+  .pb.active { background:var(--purple); border-color:#7a45b8; }
+  .pb.stop { border-color:var(--red); color:#ffb4c4; }
+  .pb.stop.active { background:var(--red); color:#fff; }
+  .pb.hit, .key.hit, .power.hit { transform:scale(.95); filter:brightness(1.5); }
+
+  /* ---- fixed WASD directional pad ---- */
+  .pad {
+    display:grid; gap:8px; width:100%; max-width:282px; margin:4px auto;
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-rows:repeat(2, 78px);
+  }
+  .key {
+    width:100%; height:100%; margin:0; padding:6px 4px;
+    background:var(--panel); border:2px solid var(--line); border-radius:14px; color:var(--text);
+    font-family:"Poppins","Segoe UI",sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    line-height:1; overflow:hidden;
+    cursor:pointer; touch-action:none; user-select:none;
+    transition:background .14s ease, border-color .14s ease, transform .12s ease;
+  }
+  .key .kb, .key .tc { font-size:1.45rem; font-weight:900; line-height:1; }
+  .key:hover { border-color:#4a4558; }
+  .key.active { background:var(--red); border-color:var(--red); }
+  .key small {
+    display:block; font:500 .64rem "Segoe UI",sans-serif; color:var(--muted);
+    text-transform:none; line-height:1.1; letter-spacing:.02em; white-space:nowrap;
+  }
+  .key.active small { color:#fff; }
+  body.off .pad { opacity:.35; }
+  [data-k="up"]{grid-column:2;grid-row:1} [data-k="left"]{grid-column:1;grid-row:2}
+  [data-k="down"]{grid-column:2;grid-row:2} [data-k="right"]{grid-column:3;grid-row:2}
+
+  .action { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-weight:600; gap:10px; }
+  .badge { font-size:.7rem; font-weight:800; letter-spacing:.1em; padding:4px 10px; border-radius:6px; background:var(--purple); white-space:nowrap; }
+  .meter { display:grid; grid-template-columns:92px 1fr auto; align-items:center; gap:10px; font-size:.82rem; font-variant-numeric:tabular-nums; }
+  .meter + .meter { margin-top:10px; }
+  .bar { height:8px; border-radius:4px; background:#26232f; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--red); width:50%; transition:width .25s ease, background .25s ease; }
+  .hud-strip {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:12px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:.76rem; color:var(--muted); font-variant-numeric:tabular-nums;
+  }
+  .hud-strip b { color:var(--text); }
+
+  /* ---- side dock & collapsible drawer ---- */
+  .side-wrap {
+    position:fixed; right:0; top:50%;
+    transform:translate(0, -50%);
+    opacity:1;
+    display:flex; align-items:center; z-index:40;
+    transition:transform .38s ease, opacity .3s ease;
+  }
+  .side-wrap.side-enter,
+  .side-wrap.side-exit {
+    transform:translate(105%, -50%);
+    opacity:0;
+    pointer-events:none;
+  }
+  .side-drawer {
+    width:min(336px, 88vw); background:rgba(19,18,25,.97);
+    border:1.5px solid var(--line); border-right:0;
+    border-radius:14px 0 0 14px; padding:14px 16px 16px;
+    box-shadow:-12px 0 32px rgba(0,0,0,.65);
+  }
+  .drawer-head {
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:12px;
+  }
+  .drawer-head span {
+    font:800 .82rem "Poppins","Segoe UI",sans-serif; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--red);
+  }
+  .drawer-close {
+    background:#1d1b25; border:1px solid var(--line); color:var(--muted);
+    border-radius:6px; width:26px; height:26px; font-weight:700; cursor:pointer;
+  }
+  .drawer-close:hover { color:var(--text); border-color:var(--red); }
+  .side-tabs {
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .side-tab {
+    writing-mode:vertical-rl; transform:rotate(180deg);
+    background:var(--panel); color:var(--text);
+    border:1.5px solid var(--line); border-left:0;
+    border-radius:0 10px 10px 0;
+    padding:14px 9px; cursor:pointer;
+    font:800 .72rem "Poppins","Segoe UI",sans-serif;
+    letter-spacing:.12em; text-transform:uppercase;
+    box-shadow:-4px 4px 14px rgba(0,0,0,.4);
+    transition:background .15s, border-color .15s;
+  }
+  .side-tab:hover { border-color:var(--purple-l); }
+  .side-tab.active { background:var(--purple); border-color:#7a45b8; color:#fff; }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ================= LOAD SCREEN ================= -->
+<section id="loader" class="page">
+  <div class="loader-tag">IEEE RAS TUNISIA <b>×</b> ODC FABLAB</div>
+  <div class="loader-title">ROBODOG</div>
+  <div class="loader-sub">Initializing Control System</div>
+  <div class="loader-bar"><i></i></div>
+  <button class="welcome-btn" id="welcome-btn">
+    <small class="only-kb">Press Enter or Click</small>
+    <small class="only-touch">Tap to Start</small>
+    WELCOME!
+  </button>
+</section>
+
+<!-- ================= GUIDE / WELCOME ================= -->
+<section id="welcome" class="page" hidden>
+  <div class="top"><span>IEEE RAS TUNISIA <b>×</b> ODC FABLAB</span><span>BUILD CHALLENGE</span></div>
+  <h1>Robodog</h1>
+  <div class="spaced">Control Console · Quadruped</div>
+  <span class="pill">12-DOF · Raspberry Pi 5 · Web Control</span>
+
+  <div class="sec">Functions</div>
+  <div class="panel"><ul class="dia">
+    <li>Stand up and hold a stable posture</li>
+    <li>Walk forward and backward</li>
+    <li>Turn on the spot and while walking</li>
+    <li>Switch the OLED screen display (Eyes, Radar, HUD)</li>
+  </ul></div>
+
+  <div class="sec only-kb">Keyboard Controls</div>
+  <div class="sec only-touch">Touch Controls</div>
+  <div class="panel only-touch"><ul class="dia">
+    <li>Tap Request Control (or Admin Unlock), then Power On</li>
+    <li>Hold ▲ ◄ ▼ ► in Movement tab to walk</li>
+    <li>Two fingers together: walk while turning</li>
+    <li>E-STOP is restricted to active pilot &amp; Admin</li>
+  </ul></div>
+  <table class="only-kb">
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td><kbd>T</kbd></td><td>Admin unlock / take over / release pilot control</td></tr>
+    <tr><td><kbd>P</kbd></td><td>Power robot ON / OFF</td></tr>
+    <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> (or <kbd>Z</kbd> <kbd>Q</kbd>, Arrows)</td><td>Move forward, turn, backward</td></tr>
+    <tr><td><kbd>1</kbd> <kbd>2</kbd></td><td>Stand / Sit</td></tr>
+    <tr><td><kbd>Space</kbd></td><td>Emergency stop (active pilot &amp; Admin only)</td></tr>
+    <tr><td><kbd>E</kbd> <kbd>R</kbd> <kbd>H</kbd></td><td>OLED Screen: Eyes, Radar, HUD</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Return to guide</td></tr>
+  </table>
+
+  <p class="nomouse only-kb">Click side tabs or use keyboard shortcuts</p>
+  <p class="nomouse only-touch">Touch mode enabled</p>
+  <p class="lan only-kb" id="lan"></p>
+  <button class="cta" id="start"><small class="only-kb">Enter</small><small class="only-touch">Tap here</small>Open Console</button>
+  <footer><span>IEEE RAS TUNISIA × ODC FABLAB</span><span>Robodog | November 2026</span></footer>
+</section>
+
+<!-- ================= CONSOLE ================= -->
+<section id="console" class="page" hidden>
+  <div class="head">
+    <h2>Robodog</h2>
+    <div class="status"><span class="dot" id="dot"></span><span id="conn">Connecting…</span></div>
+  </div>
+  <div class="telem" id="telem">ToF --- mm | PITCH --°</div>
+
+  <!-- Admin / Guest Arbitration Card -->
+  <div class="auth-card">
+    <div class="auth-top">
+      <div class="auth-info">
+        <span class="auth-dot" id="auth-dot"></span>
+        <span class="admin-tag" id="admin-badge" hidden>Admin</span>
+        <span id="auth-status">Spectator Mode</span>
+      </div>
+      <div class="auth-btns">
+        <button class="auth-btn primary" id="primary-auth-btn">Request Control</button>
+        <button class="auth-btn" id="admin-btn" data-hot="t"><span id="admin-btn-text">Admin</span> <kbd>T</kbd></button>
+      </div>
+    </div>
+
+    <!-- Live Guest Request Banner (Visible to Admin Only) -->
+    <div class="req-banner" id="req-banner" hidden>
+      <span id="req-text">User wants to drive</span>
+      <div class="auth-btns">
+        <button class="auth-btn release" id="req-approve">Approve</button>
+        <button class="auth-btn danger" id="req-deny">Deny</button>
+      </div>
+    </div>
+
+    <!-- Masked Admin PIN Entry -->
+    <div class="pin-row" id="pin-row" hidden>
+      <input class="pin-input" id="pin-input" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Enter Admin PIN">
+      <button class="auth-btn primary" id="pin-admin-btn">Admin</button>
+      <button class="auth-btn" id="pin-guest-btn" title="Unlock one turn on this device without Admin access">Guest Turn</button>
+    </div>
+    <div class="auth-msg" id="auth-msg" hidden></div>
+  </div>
+
+  <button class="power" id="power" data-hot="p"><span id="pw-text">Power On</span><kbd>P</kbd></button>
+  <div class="pstate" id="pw-state">Robot Off</div>
+
+  <div class="panel action"><span id="action">Robot Off</span><span class="badge" id="oled-mode">OLED: OFF</span></div>
+
+  <div class="sec">Live Telemetry</div>
+  <div class="panel">
+    <div class="meter"><span>ToF Radar</span><div class="bar"><i id="tof-fill"></i></div><strong id="tof-val">--- mm</strong></div>
+    <div class="hud-strip">
+      <span>Pitch: <b id="pitch-val">0.0°</b></span>
+      <span>OLED View: <b id="screen-val">EYES</b></span>
+      <span id="sensor-src">OLED Sync</span>
+    </div>
+  </div>
+
+  <button class="pb" id="home" data-hot="escape" style="margin-top:20px;width:100%;flex-direction:row;justify-content:center">Guide <kbd>Esc</kbd></button>
+  <footer><span>IEEE RAS TUNISIA × ODC FABLAB</span><span>Robodog | November 2026</span></footer>
+</section>
+
+</main>
+
+<!-- ================= SIDE CONTROLS (AFTER GUIDE) ================= -->
+<aside class="side-wrap" id="side-wrap" hidden>
+  <div class="side-drawer" id="side-drawer" hidden>
+    <div class="drawer-head">
+      <span id="drawer-title">Posture &amp; Safety</span>
+      <button class="drawer-close" id="drawer-close" title="Close">×</button>
+    </div>
+
+    <!-- Posture & Safety -->
+    <div id="panel-posture">
+      <div class="row c3">
+        <button class="pb active" data-posture="STAND" data-hot="1">Stand <kbd>1</kbd></button>
+        <button class="pb" data-posture="SIT" data-hot="2">Sit <kbd>2</kbd></button>
+        <button class="pb stop" data-posture="STOP" data-hot=" ">E-Stop <kbd>Space</kbd></button>
+      </div>
+    </div>
+
+    <!-- OLED Screen -->
+    <div id="panel-oled" hidden>
+      <div class="row c3">
+        <button class="pb active" data-screen="EYES" data-hot="e">Eyes <kbd>E</kbd></button>
+        <button class="pb" data-screen="RADAR" data-hot="r">Radar <kbd>R</kbd></button>
+        <button class="pb" data-screen="HUD" data-hot="h">HUD <kbd>H</kbd></button>
+      </div>
+    </div>
+
+    <!-- Movement -->
+    <div id="panel-move" hidden>
+      <div class="pad">
+        <button class="key" data-k="up"><span class="kb">W</span><span class="tc">▲</span><small>forward</small></button>
+        <button class="key" data-k="left"><span class="kb">A</span><span class="tc">◄</span><small>left</small></button>
+        <button class="key" data-k="down"><span class="kb">S</span><span class="tc">▼</span><small>backward</small></button>
+        <button class="key" data-k="right"><span class="kb">D</span><span class="tc">►</span><small>right</small></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-tabs">
+    <button class="side-tab" data-tab="posture">Posture &amp; Safety</button>
+    <button class="side-tab" data-tab="oled">OLED Screen</button>
+    <button class="side-tab" data-tab="move">Movement</button>
+  </div>
+</aside>
+
+<script>
+  const MOVE = { w:"up", z:"up", arrowup:"up", s:"down", arrowdown:"down",
+                 a:"left", q:"left", arrowleft:"left", d:"right", arrowright:"right" };
+  const TAB_TITLES = { posture:"Posture & Safety", oled:"OLED Screen", move:"Movement" };
+  const held = new Set();
+
+  const SID = sessionStorage.getItem("robodog_sid") || (() => {
+    const id = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
+    sessionStorage.setItem("robodog_sid", id);
+    return id;
+  })();
+
+  const S = {
+    powered:false, dist:640, pitch:0,
+    isPilot:false, isAdmin:false, pilotActive:false, pilotLabel:"",
+    leaseLeft:0, pendingReq:null
+  };
+  const $ = id => document.getElementById(id);
+  const OFFLINE = "Offline: check Wi-Fi and server";
+  const TOUCH = matchMedia("(pointer: coarse)").matches || /[?&]touch=1/.test(location.search);
+  document.body.classList.toggle("touch", TOUCH);
+  let last = "", view = "loader", activeTab = null, navSeq = 0;
+
+  function show(v) {
+    if (v === view) return;
+    const seq = ++navSeq;
+    const prevEl = $(view);
+    const nextEl = $(v);
+    const sideEl = $("side-wrap");
+
+    if (view === "console") {
+      release();
+      openTab(null);
+      sideEl.classList.add("side-exit");
+    }
+    if (prevEl) prevEl.classList.add("page-exit");
+
+    setTimeout(() => {
+      if (seq !== navSeq) return;
+      ["loader", "welcome", "console"].forEach(id => {
+        const el = $(id);
+        el.hidden = id !== v;
+        el.classList.remove("page-exit", "page-enter");
+      });
+
+      view = v;
+      nextEl.classList.add("page-enter");
+      void nextEl.offsetWidth;
+      requestAnimationFrame(() => nextEl.classList.remove("page-enter"));
+
+      if (v === "console") {
+        sideEl.hidden = false;
+        sideEl.classList.remove("side-exit");
+        sideEl.classList.add("side-enter");
+        void sideEl.offsetWidth;
+        requestAnimationFrame(() => sideEl.classList.remove("side-enter"));
+      } else {
+        sideEl.hidden = true;
+        sideEl.classList.remove("side-enter", "side-exit");
+      }
+    }, 240);
+  }
+
+  function openTab(tab) {
+    if (activeTab === tab || !tab) {
+      activeTab = null;
+      $("side-drawer").hidden = true;
+      document.querySelectorAll(".side-tab").forEach(t => t.classList.remove("active"));
+      return;
+    }
+    activeTab = tab;
+    $("drawer-title").textContent = TAB_TITLES[tab] || "";
+    $("side-drawer").hidden = false;
+    ["posture", "oled", "move"].forEach(k => {
+      $("panel-" + k).hidden = k !== tab;
+    });
+    document.querySelectorAll(".side-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+  }
+
+  $("welcome-btn").addEventListener("click", () => show("welcome"));
+  document.querySelectorAll(".side-tab").forEach(t =>
+    t.addEventListener("click", () => openTab(t.dataset.tab)));
+  $("drawer-close").addEventListener("click", () => openTab(null));
+
+  function command() {
+    if (!S.powered || !S.isPilot) return { vx: 0, turn: 0 };
+    return { vx: (held.has("up") ? 1 : 0) - (held.has("down") ? 1 : 0),
+             turn: (held.has("left") ? 1 : 0) - (held.has("right") ? 1 : 0) };
+  }
+  function label({ vx, turn }) {
+    if (!S.isPilot) {
+      if (S.pendingReq && S.pendingReq.is_me) return "Waiting for Admin approval…";
+      return S.pilotActive ? `Spectator Mode (${S.pilotLabel} driving)` : "Spectator Mode · Request Control to drive";
+    }
+    if (!S.powered) return "Robot Off: " + (TOUCH ? "tap Power On" : "press P");
+    const move = vx > 0 ? "Forward" : vx < 0 ? "Backward" : "";
+    const rot = turn > 0 ? "left" : turn < 0 ? "right" : "";
+    if (!move && !rot) return "Stop";
+    if (move && rot) return `${move} while turning ${rot}`;
+    return move || `Turning ${rot} on the spot`;
+  }
+
+  function syncUI(d) {
+    if (!d) return;
+    $("dot").classList.add("on"); $("conn").textContent = "Connected";
+    S.powered = !!d.powered;
+    S.isPilot = !!d.is_pilot;
+    S.isAdmin = !!d.is_admin;
+    S.pilotActive = !!d.pilot_active;
+    S.pilotLabel = d.pilot_label || "";
+    S.leaseLeft = d.lease_left || 0;
+    S.pendingReq = d.pending_request || null;
+
+    document.body.classList.toggle("off", !S.powered);
+    document.body.classList.toggle("spectator", !S.isPilot);
+    document.body.classList.toggle("is-admin", S.isAdmin);
+
+    const dot = $("auth-dot");
+    dot.className = "auth-dot" + (S.isPilot ? " pilot" : (S.pilotActive ? " locked" : ""));
+    $("admin-badge").hidden = !S.isAdmin;
+
+    const pBtn = $("primary-auth-btn");
+    const aBtnText = $("admin-btn-text");
+
+    if (S.isAdmin) {
+      $("pin-row").hidden = true;
+      aBtnText.textContent = "Lock";
+      if (S.isPilot) {
+        $("auth-status").textContent = `Driving (${S.leaseLeft.toFixed(0)}s)`;
+        pBtn.hidden = false;
+        pBtn.textContent = "Release";
+        pBtn.className = "auth-btn release";
+      } else if (S.pilotActive) {
+        $("auth-status").textContent = `${S.pilotLabel} driving`;
+        pBtn.hidden = false;
+        pBtn.textContent = "Take Over";
+        pBtn.className = "auth-btn primary";
+      } else {
+        $("auth-status").textContent = "Robot Free";
+        pBtn.hidden = false;
+        pBtn.textContent = "Drive";
+        pBtn.className = "auth-btn primary";
+      }
+    } else {
+      aBtnText.textContent = "Admin";
+      if (S.isPilot) {
+        $("auth-status").textContent = `Guest Pilot (${S.leaseLeft.toFixed(0)}s)`;
+        pBtn.hidden = false;
+        pBtn.textContent = "Release";
+        pBtn.className = "auth-btn release";
+      } else if (S.pendingReq && S.pendingReq.is_me) {
+        $("auth-status").textContent = "Awaiting Admin…";
+        pBtn.hidden = false;
+        pBtn.textContent = "Requested";
+        pBtn.className = "auth-btn";
+      } else {
+        $("auth-status").textContent = S.pilotActive ? `Locked (${S.pilotLabel})` : "Spectator Mode";
+        pBtn.hidden = false;
+        pBtn.textContent = "Request Control";
+        pBtn.className = "auth-btn primary";
+      }
+    }
+
+    if (S.isAdmin && S.pendingReq && !S.pendingReq.is_me) {
+      $("req-text").textContent = `${S.pendingReq.label} wants to drive`;
+      $("req-banner").hidden = false;
+    } else {
+      $("req-banner").hidden = true;
+    }
+
+    $("pw-text").textContent = S.powered ? "Power Off" : "Power On";
+    $("pw-state").textContent = S.powered ? "Robot On" : "Robot Off";
+
+    if (typeof d.distance_mm === "number") {
+      S.dist = d.distance_mm;
+      S.pitch = typeof d.pitch_deg === "number" ? d.pitch_deg : 0;
+      $("telem").textContent = `ToF ${S.dist} mm | PITCH ${S.pitch.toFixed(1)}°`;
+      $("tof-val").textContent = `${S.dist} mm`;
+      $("tof-fill").style.width = `${Math.min(100, S.dist / 10)}%`;
+      $("pitch-val").textContent = `${S.pitch.toFixed(1)}°`;
+      $("sensor-src").textContent = d.sensors_live ? "HW Live" : "OLED Sync";
+    }
+    if (d.mode) {
+      $("oled-mode").textContent = `OLED: ${d.mode}`;
+      const p = (d.mode === "SIT" || d.mode === "STOP") ? d.mode : "STAND";
+      document.querySelectorAll("[data-posture]").forEach(b => b.classList.toggle("active", S.powered && b.dataset.posture === p));
+    }
+    if (d.oled_screen) {
+      $("screen-val").textContent = d.oled_screen;
+      document.querySelectorAll("[data-screen]").forEach(b => b.classList.toggle("active", b.dataset.screen === d.oled_screen));
+    }
+    $("action").textContent = label(command());
+  }
+
+  async function post(url, payload, extra = {}) {
+    try {
+      const r = await fetch(url, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ sid: SID, ...payload }),
+        ...extra
+      });
+      const data = await r.json();
+      syncUI(data);
+      return data;
+    } catch {
+      $("dot").classList.remove("on"); $("conn").textContent = OFFLINE;
+      return null;
+    }
+  }
+  const send = c => post("/cmd", c, { keepalive:true });
+  const sendAction = p => post("/action", p);
+
+  function showAuthMsg(msg) {
+    $("auth-msg").textContent = msg;
+    $("auth-msg").hidden = !msg;
+  }
+
+  async function submitPin(mode) {
+    const pin = $("pin-input").value;
+    $("pin-input").value = "";
+    const res = await post("/control", { action: mode === "guest" ? "guest_unlock" : "admin_unlock", pin });
+    if (res && res.ok) {
+      $("pin-row").hidden = true;
+      showAuthMsg("");
+    } else if (res) {
+      showAuthMsg(res.msg || "Invalid Admin PIN");
+      $("pin-input").focus();
+    }
+  }
+
+  $("primary-auth-btn").addEventListener("click", async () => {
+    showAuthMsg("");
+    if (S.isPilot) {
+      held.clear();
+      await post("/control", { action: "release" });
+    } else if (S.isAdmin) {
+      await post("/control", { action: "takeover" });
+    } else {
+      const res = await post("/control", { action: "request" });
+      if (res && res.ok) showAuthMsg("Request sent — waiting for Admin to approve");
+    }
+  });
+
+  $("admin-btn").addEventListener("click", async () => {
+    showAuthMsg("");
+    if (S.isAdmin) {
+      held.clear();
+      await post("/control", { action: "admin_lock" });
+      return;
+    }
+    $("pin-row").hidden = !$("pin-row").hidden;
+    $("pin-input").value = "";
+    if (!$("pin-row").hidden) $("pin-input").focus();
+  });
+
+  $("pin-admin-btn").addEventListener("click", () => submitPin("admin"));
+  $("pin-guest-btn").addEventListener("click", () => submitPin("guest"));
+  $("req-approve").addEventListener("click", () => post("/control", { action: "approve" }));
+  $("req-deny").addEventListener("click", () => post("/control", { action: "deny" }));
+
+  $("pin-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); submitPin("admin"); }
+    if (e.key === "Escape") { e.preventDefault(); $("pin-input").value = ""; $("pin-row").hidden = true; showAuthMsg(""); }
+  });
+
+  function refresh(force = false) {
+    document.querySelectorAll(".key").forEach(b => b.classList.toggle("active", S.powered && S.isPilot && held.has(b.dataset.k)));
+    const c = command();
+    $("action").textContent = label(c);
+    const sig = JSON.stringify(c);
+    if (force || sig !== last) { last = sig; if (S.isPilot) send(c); }
+  }
+  function release() { if (held.size) { held.clear(); refresh(true); } }
+
+  // ---- actions ----
+  $("start").addEventListener("click", () => show("console"));
+  $("home").addEventListener("click", () => show("welcome"));
+  $("power").addEventListener("click", async () => {
+    if (!S.isPilot) {
+      showAuthMsg(S.isAdmin ? "Click Drive / Take Over first" : "Request Control or ask Admin to unlock");
+      return;
+    }
+    held.clear();
+    await sendAction({ power: !S.powered });
+  });
+  document.querySelectorAll("[data-posture]").forEach(b =>
+    b.addEventListener("click", async () => {
+      const posture = b.dataset.posture;
+      if (posture === "STOP") {
+        if (!S.isPilot && !S.isAdmin) {
+          showAuthMsg("E-Stop is restricted to active pilot & Admin");
+          return;
+        }
+        held.clear();
+        await sendAction({ posture: "STOP" });
+        return;
+      }
+      if (!S.isPilot) return;
+      held.clear();
+      refresh(true);
+      sendAction({ posture });
+    }));
+  document.querySelectorAll("[data-screen]").forEach(b =>
+    b.addEventListener("click", () => { if (S.isPilot) sendAction({ oled_screen: b.dataset.screen }); }));
+  document.querySelectorAll("button").forEach(b => { b.tabIndex = -1; });
+
+  document.querySelectorAll(".key").forEach(b => {
+    const k = b.dataset.k;
+    b.addEventListener("pointerdown", e => { e.preventDefault(); b.setPointerCapture(e.pointerId); held.add(k); refresh(true); });
+    const end = () => { if (held.delete(k)) refresh(true); };
+    b.addEventListener("pointerup", end); b.addEventListener("pointercancel", end);
+  });
+  if (TOUCH) addEventListener("contextmenu", e => e.preventDefault());
+
+  // ---- keyboard ----
+  function keyName(e) {
+    if (e.code === "Space") return " ";
+    if (e.code === "Digit1" || e.code === "Numpad1") return "1";
+    if (e.code === "Digit2" || e.code === "Numpad2") return "2";
+    return e.key.toLowerCase();
+  }
+  addEventListener("keydown", e => {
+    if (e.target && e.target.tagName === "INPUT") return;
+    if (e.key === "Tab") { e.preventDefault(); return; }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (view === "loader") {
+      if (e.key === "Enter" || e.code === "Space") { e.preventDefault(); $("welcome-btn").click(); }
+      return;
+    }
+    if (view === "welcome") {
+      if (e.key === "Enter") { e.preventDefault(); $("start").click(); }
+      return;
+    }
+    const key = keyName(e), dir = MOVE[key];
+    if (dir) {
+      e.preventDefault();
+      if (!e.repeat) { held.add(dir); refresh(true); }
+      return;
+    }
+    const el = document.querySelector(`[data-hot="${key}"]`);
+    if (!el) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    el.classList.add("hit"); setTimeout(() => el.classList.remove("hit"), 150);
+    el.click();
+  });
+  addEventListener("keyup", e => {
+    if (e.code === "Space") e.preventDefault();
+    const dir = MOVE[e.key.toLowerCase()];
+    if (dir) { held.delete(dir); refresh(true); }
+  });
+
+  // ---- safety & lease heartbeat ----
+  addEventListener("blur", release);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) release(); });
+  setInterval(() => { if (held.size && S.powered && S.isPilot) send(command()); }, 150);
+
+  async function pollState() {
+    try { syncUI(await (await fetch(`/state?sid=${encodeURIComponent(SID)}`)).json()); }
+    catch { $("dot").classList.remove("on"); $("conn").textContent = OFFLINE; }
+  }
+  pollState(); setInterval(pollState, 1000);
+  fetch("/info").then(r => r.json()).then(d => {
+    if (!TOUCH && d.url) $("lan").innerHTML = `On your phone (same Wi-Fi): <b>${d.url}</b>`;
+  }).catch(() => {});
+</script>
+</body>
+</html>

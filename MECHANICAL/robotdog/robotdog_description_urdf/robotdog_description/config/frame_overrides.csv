@@ -1,0 +1,15 @@
+link,parent_joint,joint_type,rule,original_roll_deg,original_pitch_deg,original_yaw_deg,post_roll_deg,post_pitch_deg,post_yaw_deg,role
+HipFrontLeft_BackRight,Revolute_8,revolute,auto,180.000000,0.000000,-180.000000,90.000000,0.000000,90.000000,revolute_axis_z
+HipFrontLeft_BackRight_f,Revolute_2,revolute,auto,180.000000,0.000000,0.000000,-90.000000,0.000000,90.000000,revolute_axis_z
+LowerSpine,Rigid_15,fixed,keep,180.000000,0.000000,-180.000000,180.000000,0.000000,-180.000000,unchanged
+TibiaR,Revolute_18,revolute,auto,180.000000,-30.000000,0.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+TibiaR_f,Revolute_4,revolute,auto,0.000000,-15.000000,-180.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+base_link,,root,auto,180.000000,0.000000,-180.000000,0.000000,0.000000,0.000000,root_x_forward_z_up
+robotdog_FemurL_f,Revolute_14,revolute,auto,180.000000,-45.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+robotdog_FemurL_f_2,Revolute_17,revolute,auto,-180.000000,-30.000000,0.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+robotdog_FemurR_f,Revolute_9,revolute,auto,-180.000000,-30.000000,0.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+robotdog_FemurR_f_2,Revolute_12,revolute,auto,180.000000,-40.000000,0.000000,90.000000,0.000000,0.000000,revolute_axis_z
+robotdog_HipFrontRight_BackLeft,Revolute_11,revolute,auto,180.000000,0.000000,0.000000,-90.000000,0.000000,90.000000,revolute_axis_z
+robotdog_HipFrontRight_BackLeft_2,Revolute_16,revolute,auto,180.000000,0.000000,-180.000000,90.000000,0.000000,90.000000,revolute_axis_z
+robotdog_TibiaL_f,Revolute_10,revolute,auto,0.000000,-40.000000,-180.000000,-90.000000,0.000000,0.000000,revolute_axis_z
+robotdog_TibiaL_f_2,Revolute_13,revolute,auto,0.000000,-20.000000,180.000000,90.000000,0.000000,0.000000,revolute_axis_z

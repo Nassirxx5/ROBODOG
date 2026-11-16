@@ -1,0 +1,30 @@
+Total mass 2.50 kg (assumed split) | L1=101 mm  L2=132 mm | servo 1.96 N.m, no-load 6.5 rad/s
+
+phase                          time  dist  dYaw maxRoll maxPit  z end p99 tau  avg I
+rest: folded legs (CAD pose)    0.0  0.00     0     0.0    0.0  0.028    0.10    0.9
+unfold legs                     1.0  0.04    -1     0.1    2.8  0.034    1.96    4.8
+stand up                        2.4  0.04     0     0.0    1.5  0.150    1.96    7.4
+stand                           4.4  0.00     0     0.0    0.2  0.150    0.62    4.0
+walk forward                    5.4  0.44     3     1.8    1.3  0.148    1.09    5.7
+turn on the spot                9.4  0.08    35     1.7    1.7  0.148    1.52    6.7
+pause                          12.4  0.01     2     1.6    1.7  0.150    1.23    4.7
+jump 1: crouch                 13.2  0.00     0     0.0    0.1  0.110    0.77    4.2
+jump 1: push                   13.9  0.02    -0     0.0    0.2  0.136    1.11    6.1
+jump 1: flight                 14.0  0.03    -0     0.1    6.3  0.118    1.96    9.7
+jump 1: landing                14.3  0.04     0     0.0    4.5  0.105    1.49    5.2
+jump 1: recover                14.8  0.00    -0     0.0    0.2  0.150    0.68    3.9
+jump 2: crouch                 15.8  0.00     0     0.0    0.1  0.110    0.75    4.2
+jump 2: push                   16.5  0.02    -0     0.0    0.2  0.136    1.11    6.1
+jump 2: flight                 16.6  0.03    -0     0.2    6.2  0.118    1.96    9.7
+jump 2: landing                16.9  0.04    -0     0.1    4.6  0.105    1.48    5.2
+jump 2: recover                17.3  0.00    -0     0.0    0.2  0.150    0.69    3.9
+stand (end)                    18.3  0.00     0     0.0    0.1  0.150    0.52    3.7
+
+Torque, 99th percentile over the whole run (limit 1.96 N.m):
+  roll   p99 0.63  peak 1.04  margin(p99) x3.13
+  pitch  p99 1.96  peak 1.96  margin(p99) x1.00
+  knee   p99 1.63  peak 1.96  margin(p99) x1.20
+Estimated servo current while walking/turning: avg 6.1 A, p99 9.8 A
+Stand-up: body height 34 mm after unfolding -> 150 mm standing
+Jump 1: time with ALL feet off the ground 38 ms | max foot clearance 1 mm | max upward speed 0.40 m/s | peak torque 1.96 N.m | peak current 16.0 A
+Jump 2: time with ALL feet off the ground 40 ms | max foot clearance 1 mm | max upward speed 0.40 m/s | peak torque 1.96 N.m | peak current 16.0 A

@@ -1,0 +1,537 @@
+<?xml version="1.0"?>
+<robot name="robotdog">
+
+  <!-- Materials -->
+  <material name="Steel">
+    <color rgba="0.098 0.098 0.098 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.120097 0.034326 0.017053" rpy="0 0 0"/>
+      <mass value="3.112105"/>
+      <inertia ixx="4.977442e-03" ixy="-1.563302e-04" ixz="1.038371e-05"
+               iyy="3.846303e-02" iyz="7.210692e-06" izz="4.292141e-02"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="3.141593 0.000000 -3.141593"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/base_link.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="3.141593 0.000000 -3.141593"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/base_link_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="HipFrontLeft_BackRight_f">
+    <inertial>
+      <origin xyz="-0.122865 -0.005647 -0.021543" rpy="0 0 0"/>
+      <mass value="0.928432"/>
+      <inertia ixx="5.903021e-04" ixy="0.000000e+00" ixz="0.000000e+00"
+               iyy="5.387740e-03" iyz="-2.375317e-06" izz="5.148470e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.122865 0.011275 -0.136843" rpy="-1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/HipFrontLeft_BackRight_f.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.122865 0.011275 -0.136843" rpy="-1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/HipFrontLeft_BackRight_f_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="HipFrontLeft_BackRight">
+    <inertial>
+      <origin xyz="0.122865 0.005647 -0.026976" rpy="0 0 0"/>
+      <mass value="0.928432"/>
+      <inertia ixx="5.903021e-04" ixy="0.000000e+00" ixz="0.000000e+00"
+               iyy="5.387740e-03" iyz="2.375317e-06" izz="5.148470e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.122865 -0.011275 -0.142276" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/HipFrontLeft_BackRight.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.122865 -0.011275 -0.142276" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/HipFrontLeft_BackRight_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_HipFrontRight_BackLeft">
+    <inertial>
+      <origin xyz="0.059351 -0.005647 -0.021543" rpy="0 0 0"/>
+      <mass value="0.464216"/>
+      <inertia ixx="2.951510e-04" ixy="5.956986e-05" ixz="1.312491e-05"
+               iyy="8.211881e-04" iyz="-1.187659e-06" izz="7.015532e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.122865 0.011275 -0.136843" rpy="-1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_HipFrontRight_BackLeft.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.122865 0.011275 -0.136843" rpy="-1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_HipFrontRight_BackLeft_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="LowerSpine">
+    <inertial>
+      <origin xyz="0.122780 0.041593 0.006027" rpy="0 0 0"/>
+      <mass value="2.576339"/>
+      <inertia ixx="3.655879e-03" ixy="-2.172394e-07" ixz="2.295744e-06"
+               iyy="2.998103e-02" iyz="1.047201e-11" izz="3.342220e-02"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/LowerSpine.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/LowerSpine_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_HipFrontRight_BackLeft_2">
+    <inertial>
+      <origin xyz="-0.059351 0.005647 -0.026976" rpy="0 0 0"/>
+      <mass value="0.464216"/>
+      <inertia ixx="2.951510e-04" ixy="5.956986e-05" ixz="-1.312491e-05"
+               iyy="8.211881e-04" iyz="1.187659e-06" izz="7.015532e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.122865 -0.011275 -0.142276" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_HipFrontRight_BackLeft_2.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.122865 -0.011275 -0.142276" rpy="1.570796 1.570796 0.000000"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_HipFrontRight_BackLeft_2_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_FemurL_f">
+    <inertial>
+      <origin xyz="0.030044 0.032854 -0.021531" rpy="0 0 0"/>
+      <mass value="0.434467"/>
+      <inertia ixx="5.283443e-04" ixy="-2.335574e-04" ixz="1.898659e-06"
+               iyy="5.106860e-04" iyz="5.669839e-06" izz="5.390745e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.099707 0.120543 0.028748" rpy="1.570796 0.000000 0.785398"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurL_f.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.099707 0.120543 0.028748" rpy="1.570796 0.000000 0.785398"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurL_f_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_FemurR_f">
+    <inertial>
+      <origin xyz="0.037523 -0.023958 0.028748" rpy="0 0 0"/>
+      <mass value="0.868935"/>
+      <inertia ixx="3.017423e-03" ixy="4.133624e-04" ixz="0.000000e+00"
+               iyy="3.453952e-03" iyz="0.000000e+00" izz="1.078149e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.127508 -0.090629 0.028748" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurR_f.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.127508 -0.090629 0.028748" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurR_f_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_FemurR_f_2">
+    <inertial>
+      <origin xyz="0.032793 0.030110 -0.024843" rpy="0 0 0"/>
+      <mass value="0.868935"/>
+      <inertia ixx="3.171964e-03" ixy="-4.630846e-04" ixz="0.000000e+00"
+               iyy="3.299411e-03" iyz="0.000000e+00" izz="1.078149e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.109833 0.111394 -0.024843" rpy="1.570796 0.000000 0.698132"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurR_f_2.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.109833 0.111394 -0.024843" rpy="1.570796 0.000000 0.698132"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurR_f_2_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_FemurL_f_2">
+    <inertial>
+      <origin xyz="0.037523 -0.023958 0.021531" rpy="0 0 0"/>
+      <mass value="0.434467"/>
+      <inertia ixx="4.103827e-04" ixy="2.066812e-04" ixz="-3.301426e-06"
+               iyy="6.286475e-04" iyz="4.985235e-06" izz="5.390745e-04"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.127508 -0.090629 -0.028748" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurL_f_2.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="0.127508 -0.090629 -0.028748" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_FemurL_f_2_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="TibiaR_f">
+    <inertial>
+      <origin xyz="-0.053021 -0.011526 0.026819" rpy="0 0 0"/>
+      <mass value="0.393198"/>
+      <inertia ixx="1.658690e-04" ixy="-2.293820e-04" ixz="1.706402e-05"
+               iyy="1.020063e-03" iyz="3.150924e-06" izz="1.038644e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.152303 -0.023427 0.053193" rpy="-1.570796 0.000000 -2.879793"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/TibiaR_f.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.152303 -0.023427 0.053193" rpy="-1.570796 0.000000 -2.879793"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/TibiaR_f_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_TibiaL_f">
+    <inertial>
+      <origin xyz="-0.043182 -0.032854 -0.053193" rpy="0 0 0"/>
+      <mass value="0.786397"/>
+      <inertia ixx="1.535309e-03" ixy="-9.492387e-04" ixz="1.541688e-10"
+               iyy="1.930573e-03" iyz="1.962082e-10" izz="2.077289e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.128133 -0.085598 -0.053193" rpy="-1.570796 0.000000 -2.443461"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_TibiaL_f.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.128133 -0.085598 -0.053193" rpy="-1.570796 0.000000 -2.443461"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_TibiaL_f_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robotdog_TibiaL_f_2">
+    <inertial>
+      <origin xyz="-0.051815 0.016103 0.049255" rpy="0 0 0"/>
+      <mass value="0.786397"/>
+      <inertia ixx="9.713868e-04" ixy="6.001237e-04" ixz="-2.119784e-10"
+               iyy="2.494494e-03" iyz="1.316466e-10" izz="2.077289e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.149682 0.036612 0.049255" rpy="1.570796 0.000000 2.792527"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_TibiaL_f_2.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.149682 0.036612 0.049255" rpy="1.570796 0.000000 2.792527"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/robotdog_TibiaL_f_2_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="TibiaR">
+    <inertial>
+      <origin xyz="-0.047979 -0.024729 0.026897" rpy="0 0 0"/>
+      <mass value="0.395681"/>
+      <inertia ixx="3.394992e-04" ixy="-4.148235e-04" ixz="1.446677e-05"
+               iyy="8.536044e-04" iyz="6.875760e-06" izz="1.045123e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-1.371584 0.864976 1.293193" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/TibiaR.dae" scale="1 1 1"/>
+      </geometry>
+      <material name="Steel"/>
+    </visual>
+    <collision>
+      <origin xyz="-1.371584 0.864976 1.293193" rpy="-1.570796 0.000000 -0.523599"/>
+      <geometry>
+        <mesh filename="package://robotdog_description/meshes/robotdog/TibiaR_collision.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="Revolute_2" type="revolute">
+    <parent link="base_link"/>
+    <child link="HipFrontLeft_BackRight_f"/>
+    <origin xyz="0.284682 0.019937 0.029453" rpy="-1.570796 0.000000 1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.436332" upper="0.261799" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_8" type="revolute">
+    <parent link="base_link"/>
+    <child link="HipFrontLeft_BackRight"/>
+    <origin xyz="-0.039600 0.049280 0.029568" rpy="1.570796 0.000000 1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.349066" upper="0.261799" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_11" type="revolute">
+    <parent link="base_link"/>
+    <child link="robotdog_HipFrontRight_BackLeft"/>
+    <origin xyz="0.284682 0.049603 0.029453" rpy="-1.570796 0.000000 1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.349066" upper="0.261799" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Rigid_15" type="fixed">
+    <parent link="base_link"/>
+    <child link="LowerSpine"/>
+    <origin xyz="0.243584 -0.006273 0.062907" rpy="3.141593 0.000000 -3.141593"/>
+  </joint>
+
+  <joint name="Revolute_16" type="revolute">
+    <parent link="base_link"/>
+    <child link="robotdog_HipFrontRight_BackLeft_2"/>
+    <origin xyz="-0.039600 0.019614 0.029568" rpy="1.570796 0.000000 1.570796"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.523599" upper="0.349066" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_14" type="revolute">
+    <parent link="HipFrontLeft_BackRight_f"/>
+    <child link="robotdog_FemurL_f"/>
+    <origin xyz="-0.103465 -0.035482 -0.020984" rpy="3.141593 1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.308997" upper="1.047198" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_9" type="revolute">
+    <parent link="HipFrontLeft_BackRight"/>
+    <child link="robotdog_FemurR_f"/>
+    <origin xyz="0.103465 0.035482 -0.026417" rpy="-3.141593 -1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="0.523599" upper="2.879793" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_12" type="revolute">
+    <parent link="robotdog_HipFrontRight_BackLeft"/>
+    <child link="robotdog_FemurR_f_2"/>
+    <origin xyz="0.103465 -0.035482 -0.020984" rpy="3.141593 1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-2.705260" upper="-0.436332" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_17" type="revolute">
+    <parent link="robotdog_HipFrontRight_BackLeft_2"/>
+    <child link="robotdog_FemurL_f_2"/>
+    <origin xyz="-0.104124 0.035482 -0.026417" rpy="-3.141593 -1.570796 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="0.000000" upper="4.450590" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_4" type="revolute">
+    <parent link="robotdog_FemurL_f"/>
+    <child link="TibiaR_f"/>
+    <origin xyz="0.071457 0.071484 -0.000290" rpy="-3.141593 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.610865" upper="1.658063" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_10" type="revolute">
+    <parent link="robotdog_FemurR_f"/>
+    <child link="robotdog_TibiaL_f"/>
+    <origin xyz="0.087523 -0.050554 -0.000290" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-2.181662" upper="0.000000" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_13" type="revolute">
+    <parent link="robotdog_FemurR_f_2"/>
+    <child link="robotdog_TibiaL_f_2"/>
+    <origin xyz="0.077415 0.064984 0.003065" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-1.658063" upper="0.610865" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <joint name="Revolute_18" type="revolute">
+    <parent link="robotdog_FemurL_f_2"/>
+    <child link="TibiaR"/>
+    <origin xyz="0.087523 -0.050554 0.003290" rpy="0.000000 0.000000 0.000000"/>
+    <axis xyz="0.000000 0.000000 1.000000"/>
+    <limit lower="-0.087266" upper="2.094395" effort="100.0" velocity="1.00"/>
+  </joint>
+
+  <!-- ROS 2 control: generated generic system -->
+  <ros2_control name="robotdog_system" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+      <param name="cmd_topic">sim/robotdog_system/cmd</param>
+      <param name="state_topic">sim/robotdog_system/state</param>
+    </hardware>
+
+    <joint name="Revolute_10">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_11">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_12">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_13">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_14">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_16">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_17">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_18">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_2">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_4">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_8">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="Revolute_9">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+</robot>
