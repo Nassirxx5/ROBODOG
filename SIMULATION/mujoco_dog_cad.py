@@ -6,9 +6,9 @@ The robot starts exactly as in the CAD file (legs folded, belly on the ground),
 UNFOLDS, STANDS UP, walks, turns, then does a JUMP and lands.
 
 Needs:   pip install mujoco numpy trimesh networkx scipy matplotlib pillow imageio imageio-ffmpeg
-Run:     python mujoco_dog_cad.py --stl robotdog.stl          # saves video + plots in ./out_cad_real
-         python mujoco_dog_cad.py --stl robotdog.stl --view   # live window
-         python mujoco_dog_cad.py --stl robotdog.stl --servo-speed 9   # try a faster servo
+Run:     python3 mujoco_dog_cad.py --stl robotdog.stl          # saves video + plots in ./out_cad_real
+         python3 mujoco_dog_cad.py --stl robotdog.stl --view   # live window
+         python3 mujoco_dog_cad.py --stl robotdog.stl --servo-speed 9   # try a faster servo
 
 How the CAD is used
   1. The STL holds 14 separate parts: 2 body plates + (hip bracket, thigh, shank) x 4 legs.
@@ -71,7 +71,7 @@ Z_REST = -0.046                    # feet on the ground while the belly still re
 
 SIM_DT, CTRL_DT = 0.002, 0.02
 LEGS = ["FL", "FR", "RL", "RR"]
-JOINTS = [f"{l}_{j}" for l in LEGS for j in ("roll", "pitch", "knee")]
+JOINTS = [l + "_" + j for l in LEGS for j in ("roll", "pitch", "knee")]
 
 # These are filled by build_model_data():
 L1 = L2 = 0.0
@@ -121,6 +121,7 @@ def build_model_data(stl_path):
 
     assets = {"body.stl": stl_bytes((body.vertices - C) * 1e-3, body.faces)}
     L1s, L2s, info = [], [], {}
+    
     for l in LEGS:
         d, P = CAD_LEG[l], legparts[l]
         yp = 0.5 * (P["thigh"].bounds[0][1] + P["thigh"].bounds[1][1])      # plane of the leg
@@ -128,31 +129,52 @@ def build_model_data(stl_path):
         k = np.array([d["knee"][0], yp, d["knee"][1]])
         v = np.array([d["knee"][0] - d["hip"][0], d["knee"][1] - d["hip"][1]])
         s = np.array([d["tip"][0] - d["knee"][0], d["tip"][1] - d["knee"][1]])
-        L1s.append(np.hypot(*v)); L2s.append(np.hypot(*s))
+        L1s.append(np.hypot(*v))
+        L2s.append(np.hypot(*s))
+        
+        # --- MIRRORING FIX START ---
         at, as_ = math.atan2(v[0], -v[1]), math.atan2(s[0], -s[1])
-        Q_FOLD[l] = (0.0, wrap(-at), wrap(at - as_))            # roll, hip pitch, knee in the CAD pose
+        left = l.endswith("L")
+
+        if left:
+            Q_FOLD[l] = (0.0, wrap(-at), wrap(at - as_))
+        else:
+            Q_FOLD[l] = (0.0, wrap(at), wrap(as_ - at))
+            
         assets[f"{l}_brk.stl"] = stl_bytes((P["bracket"].vertices - h) * 1e-3, P["bracket"].faces)
         assets[f"{l}_thi.stl"] = stl_bytes(rot_y((P["thigh"].vertices - h) * 1e-3, at), P["thigh"].faces)
         assets[f"{l}_sha.stl"] = stl_bytes(rot_y((P["shank"].vertices - k) * 1e-3, as_), P["shank"].faces)
+        # --- MIRRORING FIX END ---
+        
         info[l] = ((h - C) * 1e-3)
         HIP[l] = (info[l][0], info[l][1])
+        
     HIP_Z = float(np.mean([info[l][2] for l in LEGS]))
     L1, L2 = float(np.mean(L1s)) * 1e-3, float(np.mean(L2s)) * 1e-3
     bsize = (body.bounds[1] - body.bounds[0]) * 1e-3 / 2
 
     def leg(l):
         hx, hy = HIP[l]
+        left = l.endswith("L")
+        
+        # Flip axes for the right legs
+        ax_r = "1 0 0" if left else "-1 0 0"
+        ax_p = "0 1 0" if left else "0 -1 0"
+        ax_k = "0 1 0" if left else "0 -1 0"
+        rng_p = "-2.5 1.5" if left else "-1.5 2.5"
+        rng_k = "-2.7 0" if left else "0 2.7"
+        
         return f"""
       <body name="{l}_roll_link" pos="{hx:.5f} {hy:.5f} {HIP_Z:.5f}">
-        <joint name="{l}_roll" type="hinge" axis="1 0 0" range="-0.6 0.6"/>
+        <joint name="{l}_roll" type="hinge" axis="{ax_r}" range="-0.6 0.6"/>
         <geom type="mesh" mesh="{l}_brk" material="pla" contype="0" conaffinity="0" mass="1e-6"/>
         <geom type="sphere" size="0.012" mass="{M_ROLL}" group="3" contype="0" conaffinity="0"/>
         <body name="{l}_thigh">
-          <joint name="{l}_pitch" type="hinge" axis="0 1 0" range="-2.5 1.5"/>
+          <joint name="{l}_pitch" type="hinge" axis="{ax_p}" range="{rng_p}"/>
           <geom type="mesh" mesh="{l}_thi" material="pla" contype="0" conaffinity="0" mass="1e-6"/>
           <geom type="capsule" fromto="0 0 0 0 0 {-L1:.5f}" size="0.01" mass="{M_THIGH}" group="3" contype="0" conaffinity="0"/>
           <body name="{l}_shank" pos="0 0 {-L1:.5f}">
-            <joint name="{l}_knee" type="hinge" axis="0 1 0" range="-2.7 0"/>
+            <joint name="{l}_knee" type="hinge" axis="{ax_k}" range="{rng_k}"/>
             <geom type="mesh" mesh="{l}_sha" material="pla" contype="0" conaffinity="0" mass="1e-6"/>
             <geom type="capsule" fromto="0 0 0 0 0 {-L2:.5f}" size="0.008" mass="{M_SHANK}" group="3" contype="0" conaffinity="0"/>
             <geom name="{l}_foot" type="sphere" pos="0 0 {-L2:.5f}" size="{FOOT_R}" mass="{M_FOOT}"
@@ -205,7 +227,7 @@ def build_model_data(stl_path):
 # ==========================================================================
 # PART 3 - KINEMATICS + GAIT + SERVO
 # ==========================================================================
-def leg_ik(foot):
+def leg_ik(foot, left):
     """foot (x,y,z) relative to the hip -> (roll, hip pitch, knee) [rad]; knee bends backwards."""
     x, y, z = foot
     q0 = math.atan2(y, -z)
@@ -215,6 +237,8 @@ def leg_ik(foot):
     c = (d * d - L1 * L1 - L2 * L2) / (2 * L1 * L2)
     q2 = -math.acos(max(-1.0, min(1.0, c)))
     q1 = math.atan2(-x, -zp) - math.atan2(L2 * math.sin(q2), L1 + L2 * math.cos(q2))
+    if not left:
+        q0, q1, q2 = -q0, -q1, -q2 # Mirror the angles for the right side
     return q0, q1, q2
 
 
@@ -297,7 +321,7 @@ class Brain:
             if fb:
                 hx, hy = HIP[l]
                 p[2] += K_ROLL * roll * np.sign(hy) - K_PITCH * pitch * np.sign(hx)
-            q += list(leg_ik(p))
+            q += list(leg_ik(p, l.endswith("L")))
         return np.array(q)
 
     def act(self, mode, u, roll, pitch):
