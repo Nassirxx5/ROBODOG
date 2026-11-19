@@ -86,7 +86,7 @@ ROBODOG/
 
 | Domain | Highlight |
 |---|---|
-| Mechanical | A rigid split-spine chassis and ball-bearing supported joints keep loads off the servo shafts. Parts are designed for 3D printing and easy servicing. |
+| Mechanical | A rigid split-spine chassis and joints keep loads off the servo shafts. Parts are designed for 3D printing and easy servicing. |
 | Electrical | A star-topology power layout separates the servos from the computer, so motor current spikes do not reset the Raspberry Pi. |
 | Simulation | The robot was validated in MuJoCo and Gazebo Harmonic using the real CAD geometry and mass properties before fabrication, including torque margins and walking stability. |
 | Software | A single Python locomotion core converts commands from the web app into joint angles, then sends them either to a simulator or to the servos. |
